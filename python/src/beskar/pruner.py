@@ -113,11 +113,11 @@ def _importance_prune(
 
     # Map each index to its pair id
     index_to_pair: Dict[int, str] = {}
-    for pair_id, (use_idx, result_idx) in pairs.items():
+    for pid, (use_idx, result_idx) in pairs.items():
         if use_idx >= 0:
-            index_to_pair[use_idx] = pair_id
+            index_to_pair[use_idx] = pid
         if result_idx >= 0:
-            index_to_pair[result_idx] = pair_id
+            index_to_pair[result_idx] = pid
 
     # Build logical units (standalone or paired)
     processed: set[int] = set()
