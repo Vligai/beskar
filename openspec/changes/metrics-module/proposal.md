@@ -24,6 +24,6 @@ None — this is a new module.
 
 ## Impact
 
-- **Creates**: `src/metrics/index.ts`, `src/metrics/index.test.ts`
-- **Depends on**: `src/types.ts` (`TokenUsage`, `MetricsConfig`)
-- **Consumed by**: `client-wrapper` change (called after each API response to capture usage)
+- **Creates**: `src/metrics/index.ts`, `src/metrics/index.test.ts` (TypeScript); `python/src/beskar/metrics.py`, `python/tests/test_metrics.py` (Python)
+- **Depends on**: `src/types.ts` / `python/src/beskar/types.py` — shared type contracts from `project-setup` / `python-setup`
+- **Consumed by**: `client-wrapper` change (called after each API response to capture usage, in both languages)

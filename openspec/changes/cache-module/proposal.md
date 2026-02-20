@@ -23,6 +23,6 @@ None — this is a new module.
 
 ## Impact
 
-- **Creates**: `src/cache/index.ts`, `src/cache/index.test.ts`
-- **Depends on**: `src/types.ts` (`CacheConfig`, `CacheBreakpoint`, `BeskarMessage`)
-- **Consumed by**: `client-wrapper` change (wired into the request pipeline before each API call)
+- **Creates**: `src/cache/index.ts`, `src/cache/index.test.ts` (TypeScript); `python/src/beskar/cache.py`, `python/tests/test_cache.py` (Python)
+- **Depends on**: `src/types.ts` / `python/src/beskar/types.py` — shared type contracts from `project-setup` / `python-setup`
+- **Consumed by**: `client-wrapper` change (wired into the request pipeline before each API call, in both languages)

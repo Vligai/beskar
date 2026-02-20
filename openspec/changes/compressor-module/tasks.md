@@ -33,8 +33,28 @@
 - [ ] 3.2 Test: messages with no tool calls → returned unchanged by `collapseToolChains`
 - [ ] 3.3 Test: tool result with array content (multiple content blocks) → only text blocks are truncated; non-text blocks are preserved
 
-## 4. Verification
+## 4. Python Implementation (`python/src/beskar/compressor.py`)
 
-- [ ] 4.1 `npm run typecheck` — zero errors
-- [ ] 4.2 `npm run test:coverage` — passes 90% lines/functions/statements, 85% branches thresholds
-- [ ] 4.3 `npm run build` — compiles to both `dist/esm/` and `dist/cjs/` without errors
+- [ ] 4.1 Implement `compress_tool_result(block: dict, config: CompressorConfig) -> dict` — if `max_tool_result_tokens` set and content exceeds `max_tool_result_tokens * 4` chars, truncate and append `"\n[truncated]"`; preserve `tool_use_id` and `type`; never mutate input
+- [ ] 4.2 Implement `collapse_tool_chains(messages: list[BeskarMessage], config: CompressorConfig) -> list[BeskarMessage]` — if `collapse_after_turns` not set return unchanged; collapse single-tool pairs beyond threshold distance; skip multi-tool turns; never mutate input
+- [ ] 4.3 Write `python/tests/test_compressor.py`:
+  - Test: content below limit → block unchanged
+  - Test: content above limit → truncated with `"\n[truncated]"` suffix
+  - Test: `tool_use_id` preserved
+  - Test: `max_tool_result_tokens` not set → unchanged
+  - Test: pair within threshold → not collapsed
+  - Test: pair beyond threshold → replaced with synthetic assistant message
+  - Test: multi-tool turn → not collapsed
+  - Test: `collapse_after_turns` not set → unchanged
+  - Test: input dict/list not mutated
+
+## 5. TypeScript Verification
+
+- [ ] 5.1 `npm run typecheck` — zero errors
+- [ ] 5.2 `npm run test:coverage` — passes 90% lines/functions/statements, 85% branches thresholds
+- [ ] 5.3 `npm run build` — compiles to both `dist/esm/` and `dist/cjs/` without errors
+
+## 6. Python Verification
+
+- [ ] 6.1 `mypy python/src/` — zero errors
+- [ ] 6.2 `pytest python/tests/test_compressor.py --cov=beskar.compressor --cov-fail-under=90` — passes

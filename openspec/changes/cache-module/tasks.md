@@ -50,8 +50,30 @@
 - [ ] 8.2 Test: all content below threshold → returns original request unchanged, empty breakpoints array
 - [ ] 8.3 Test: custom `minTokenThreshold: 2048` → only blocks above 2048 get breakpoints
 
-## 9. Verification
+## 9. Python Implementation (`python/src/beskar/cache.py`)
 
-- [ ] 9.1 `npm run typecheck` — zero errors
-- [ ] 9.2 `npm run test:coverage` — passes 90% lines/functions/statements, 85% branches thresholds
-- [ ] 9.3 `npm run build` — compiles to both `dist/esm/` and `dist/cjs/` without errors
+- [ ] 9.1 Implement `estimate_tokens(text: str) -> int` using `len(text) // 4`
+- [ ] 9.2 Implement `structure_cache(request: CacheRequest, config: CacheConfig | None = None) -> CacheResult` — same logic as TypeScript; `CacheRequest` is a `TypedDict`, `CacheResult` is a dataclass with `request` and `breakpoints: list[CacheBreakpoint]`
+- [ ] 9.3 Apply system prompt breakpoint: if `system` is a string above threshold, convert to a list with `cache_control` on the last block; if already a list, mark the last block
+- [ ] 9.4 Apply tool definitions breakpoint on last tool if combined content exceeds threshold
+- [ ] 9.5 Apply leading message breakpoints (skip most recent user message); enforce max 4 total
+- [ ] 9.6 Never mutate the input request — return new dicts/lists
+- [ ] 9.7 Write `python/tests/test_cache.py`:
+  - Test: system string above threshold → system becomes list with `cache_control` on last block
+  - Test: system below threshold → unchanged
+  - Test: tools above threshold → last tool gets `cache_control`
+  - Test: 4-breakpoint limit enforced with 6 eligible blocks
+  - Test: `estimate_tokens("a" * 4096)` returns `1024`
+  - Test: input dict is not mutated
+  - Test: empty request → unchanged, empty breakpoints
+
+## 10. TypeScript Verification
+
+- [ ] 10.1 `npm run typecheck` — zero errors
+- [ ] 10.2 `npm run test:coverage` — passes 90% lines/functions/statements, 85% branches thresholds
+- [ ] 10.3 `npm run build` — compiles to both `dist/esm/` and `dist/cjs/` without errors
+
+## 11. Python Verification
+
+- [ ] 11.1 `mypy python/src/` — zero errors
+- [ ] 11.2 `pytest python/tests/test_cache.py --cov=beskar.cache --cov-fail-under=90` — passes

@@ -23,7 +23,7 @@ The four optimization modules (cache, pruner, compressor, metrics) are independe
 
 ## Impact
 
-- **Creates**: `src/client.ts`, `src/client.test.ts`
-- **Modifies**: `src/index.ts` (adds `BeskarClient` export)
-- **Depends on**: all four module changes (`cache-module`, `pruner-module`, `compressor-module`, `metrics-module`) and `src/types.ts`
-- **This is the final V1 change** — all modules must be implemented before this change can be completed
+- **Creates**: `src/client.ts`, `src/client.test.ts` (TypeScript); `python/src/beskar/client.py`, `python/tests/test_client.py` (Python)
+- **Modifies**: `src/index.ts` (adds `BeskarClient` export); `python/src/beskar/__init__.py` (adds `BeskarClient` export)
+- **Depends on**: all four module changes (both languages) and their respective shared types
+- **This is the final V1 change** — all modules in both languages must be implemented before this change is complete

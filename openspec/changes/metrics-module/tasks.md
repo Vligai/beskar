@@ -34,8 +34,28 @@
 - [ ] 4.1 Add `MetricsSummary` to `src/types.ts` exports
 - [ ] 4.2 Re-export `MetricsSummary` from `src/index.ts`
 
-## 5. Verification
+## 5. Python Implementation (`python/src/beskar/metrics.py`)
 
-- [ ] 5.1 `npm run typecheck` — zero errors
-- [ ] 5.2 `npm run test:coverage` — passes 90% lines/functions/statements, 85% branches thresholds
-- [ ] 5.3 `npm run build` — compiles to both `dist/esm/` and `dist/cjs/` without errors
+- [ ] 5.1 Define `PRICING` dict: `input_per_m_tokens: 3.00, output_per_m_tokens: 15.00, cache_creation_per_m_tokens: 3.75, cache_read_per_m_tokens: 0.30`
+- [ ] 5.2 Implement `map_usage(raw: anthropic.types.Usage) -> TokenUsage` — map fields, default cache fields to `0` if `None`
+- [ ] 5.3 Implement `estimate_cost_usd(usage: TokenUsage) -> float` and `estimate_savings_usd(usage: TokenUsage) -> float` using `PRICING`
+- [ ] 5.4 Implement `create_metrics_tracker(config: MetricsConfig | None = None) -> MetricsTracker`; `track()` accumulates totals, calls `on_usage` if set, returns per-call `TokenUsage`; `summary()` derives `cache_hit_rate` (0.0 if denominator is 0), cost, savings
+- [ ] 5.5 Write `python/tests/test_metrics.py`:
+  - Test: `map_usage` with all fields → all `TokenUsage` fields correct
+  - Test: `map_usage` with no cache fields → cache fields default to `0`
+  - Test: two `track()` calls → `summary().total_calls == 2`, tokens summed
+  - Test: `track()` returns per-call `TokenUsage` not cumulative
+  - Test: `cache_hit_rate` computed correctly; `0.0` when no cache reads
+  - Test: `on_usage` callback invoked after each `track()`
+  - Test: no config → `track()` completes without error
+
+## 6. TypeScript Verification
+
+- [ ] 6.1 `npm run typecheck` — zero errors
+- [ ] 6.2 `npm run test:coverage` — passes 90% lines/functions/statements, 85% branches thresholds
+- [ ] 6.3 `npm run build` — compiles to both `dist/esm/` and `dist/cjs/` without errors
+
+## 7. Python Verification
+
+- [ ] 7.1 `mypy python/src/` — zero errors
+- [ ] 7.2 `pytest python/tests/test_metrics.py --cov=beskar.metrics --cov-fail-under=90` — passes

@@ -44,8 +44,30 @@
 - [ ] 6.2 Test: messages with only tool_use/tool_result pairs → sliding window preserves pairs
 - [ ] 6.3 Test: all three strategies return a new array (not the same reference as input)
 
-## 7. Verification
+## 7. Python Implementation (`python/src/beskar/pruner.py`)
 
-- [ ] 7.1 `npm run typecheck` — zero errors
-- [ ] 7.2 `npm run test:coverage` — passes 90% lines/functions/statements, 85% branches thresholds
-- [ ] 7.3 `npm run build` — compiles to both `dist/esm/` and `dist/cjs/` without errors
+- [ ] 7.1 Implement `find_tool_pairs(messages: list[BeskarMessage]) -> dict[str, tuple[int, int]]` — maps `tool_use_id` to `(assistant_index, user_index)`
+- [ ] 7.2 Implement `prune_messages(messages: list[BeskarMessage], config: PrunerConfig) -> list[BeskarMessage]` — dispatches to strategy; never mutates input; returns input unchanged if `len <= 1`
+- [ ] 7.3 `sliding-window`: keep last `max_turns` messages; shift cut earlier if it splits a tool pair; floor at 1 message
+- [ ] 7.4 `summarize`: replace older turns with `{"role": "user", "content": "[Previous context: N turns summarized]"}`
+- [ ] 7.5 `importance`: score by `(index / total) * 0.5 + has_tool_call * 0.3 + min(len(text) / 5000, 0.2)`; drop lowest-scoring respecting pair atomicity
+- [ ] 7.6 Write `python/tests/test_pruner.py`:
+  - Test: sliding-window trims 10-message list to 4
+  - Test: cut inside tool pair → shifts to preserve pair
+  - Test: `max_turns=0` → returns last 1 message
+  - Test: summarize → 8 messages with `max_turns=4` returns 5 (1 summary + 4)
+  - Test: importance drops lowest-scoring non-tool message first
+  - Test: importance drops tool pair atomically
+  - Test: all three strategies return a new list reference
+  - Test: empty list → empty list
+
+## 8. TypeScript Verification
+
+- [ ] 8.1 `npm run typecheck` — zero errors
+- [ ] 8.2 `npm run test:coverage` — passes 90% lines/functions/statements, 85% branches thresholds
+- [ ] 8.3 `npm run build` — compiles to both `dist/esm/` and `dist/cjs/` without errors
+
+## 9. Python Verification
+
+- [ ] 9.1 `mypy python/src/` — zero errors
+- [ ] 9.2 `pytest python/tests/test_pruner.py --cov=beskar.pruner --cov-fail-under=90` — passes

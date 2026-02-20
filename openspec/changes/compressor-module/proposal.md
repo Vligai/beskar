@@ -22,6 +22,6 @@ None — this is a new module.
 
 ## Impact
 
-- **Creates**: `src/compressor/index.ts`, `src/compressor/index.test.ts`
-- **Depends on**: `src/types.ts` (`CompressorConfig`, `BeskarMessage`)
-- **Consumed by**: `client-wrapper` change (applied after tool results are appended, before the next API call)
+- **Creates**: `src/compressor/index.ts`, `src/compressor/index.test.ts` (TypeScript); `python/src/beskar/compressor.py`, `python/tests/test_compressor.py` (Python)
+- **Depends on**: `src/types.ts` / `python/src/beskar/types.py` — shared type contracts from `project-setup` / `python-setup`
+- **Consumed by**: `client-wrapper` change (applied after tool results are appended, before the next API call, in both languages)

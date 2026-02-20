@@ -24,6 +24,6 @@ None — this is a new module.
 
 ## Impact
 
-- **Creates**: `src/pruner/index.ts`, `src/pruner/index.test.ts`
-- **Depends on**: `src/types.ts` (`PrunerConfig`, `PrunerStrategy`, `BeskarMessage`)
-- **Consumed by**: `client-wrapper` change (applied to the messages array before each API call)
+- **Creates**: `src/pruner/index.ts`, `src/pruner/index.test.ts` (TypeScript); `python/src/beskar/pruner.py`, `python/tests/test_pruner.py` (Python)
+- **Depends on**: `src/types.ts` / `python/src/beskar/types.py` — shared type contracts from `project-setup` / `python-setup`
+- **Consumed by**: `client-wrapper` change (applied to the messages array before each API call, in both languages)
