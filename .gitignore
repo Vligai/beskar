@@ -12,3 +12,4 @@ python/.venv/
 python/dist/
 python/.coverage
 python/htmlcov/
+.mypy_cache/

@@ -13,6 +13,12 @@ PrunerStrategy = Literal["sliding-window", "summarize", "importance"]
 
 
 @dataclass
+class CacheBreakpoint:
+    position: int
+    estimated_tokens: int
+
+
+@dataclass
 class CacheConfig:
     min_token_threshold: int = 1024
 
