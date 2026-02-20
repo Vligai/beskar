@@ -71,6 +71,34 @@ src/
 - **Measurable** — every optimization must be quantifiable. The metrics module is not optional; it's how we prove Beskar works.
 - **Opt-in per feature** — each module can be independently disabled. Users may want caching without pruning, etc.
 
+## Testing Standards
+
+**These are non-negotiable and apply to every module change:**
+
+- Every function with logic must have a corresponding `*.test.ts` file colocated in the same directory.
+- Coverage thresholds enforced in CI: **90% lines/functions/statements, 85% branches**. A task is not complete until its tests pass these thresholds locally (`npm run test:coverage`).
+- `src/types.ts` and `src/index.ts` are excluded from coverage (type-only, no executable lines).
+- Test files use Vitest (`describe`, `it`, `expect`). No Jest.
+- For functions that call the Anthropic SDK, use `vi.mock('@anthropic-ai/sdk')` — never make real API calls in tests.
+
+### Commands
+
+```bash
+npm test                # run all tests (no coverage)
+npm run test:coverage   # run with coverage — must pass thresholds
+npm run typecheck       # tsc --noEmit, zero errors required
+npm run build           # compile to dist/esm/ and dist/cjs/
+```
+
+### CI Pipeline
+
+`.github/workflows/ci.yml` runs on every push and PR to `main`:
+1. Typecheck (`tsc --noEmit`)
+2. Test with coverage (`vitest run --coverage`) — fails if thresholds not met
+3. Build (`tsc` dual output)
+
+Tested against Node 18, 20, and 22.
+
 ## OpenSpec Workflow
 
 This repo uses OpenSpec for structured change management. Use the `/opsx:new` skill to start a new feature change, `/opsx:ff` to fast-forward through artifact creation, and `/opsx:apply` to implement tasks. See `.claude/commands/opsx/` for available commands.
