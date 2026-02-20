@@ -5,7 +5,7 @@ export default defineConfig({
     include: ['src/**/*.test.ts'],
     environment: 'node',
     coverage: {
-      provider: 'v8',
+      provider: 'istanbul',
       include: ['src/**/*.ts'],
       // types.ts and index.ts are type-only — no executable lines to cover
       exclude: ['src/**/*.test.ts', 'src/**/*.d.ts', 'src/types.ts', 'src/index.ts'],
