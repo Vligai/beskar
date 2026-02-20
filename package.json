@@ -1,0 +1,44 @@
+{
+  "name": "beskar",
+  "version": "0.1.0",
+  "description": "Claude-native token optimization for agentic pipelines",
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "claude",
+    "anthropic",
+    "llm",
+    "token-optimization",
+    "prompt-caching",
+    "agentic"
+  ],
+  "author": "Vlad Ligai",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.0.18",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  }
+}
