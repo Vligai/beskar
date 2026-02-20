@@ -1,5 +1,10 @@
 # Beskar
 
+[![CI](https://github.com/Vligai/beskar/actions/workflows/ci.yml/badge.svg)](https://github.com/Vligai/beskar/actions/workflows/ci.yml)
+[![Coverage: ≥90%](https://img.shields.io/badge/coverage-%E2%89%A590%25-brightgreen.svg)](https://github.com/Vligai/beskar/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node 18+](https://img.shields.io/badge/node-18+-blue.svg)](https://nodejs.org/)
+
 **Claude-native token optimization for agentic pipelines.**
 
 Beskar wraps the Anthropic SDK to automatically cut token costs in production agentic loops — through intelligent prompt caching, context pruning, tool result compression, and a metrics layer that proves what you're saving.
