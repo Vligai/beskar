@@ -1,6 +1,14 @@
 .env
 .cursor
-.claude
+settings.local.json
 node_modules/
 dist/
 coverage/
+
+# Python
+python/**/__pycache__/
+python/**/*.egg-info/
+python/.venv/
+python/dist/
+python/.coverage
+python/htmlcov/
