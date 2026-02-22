@@ -40,7 +40,10 @@ export class BeskarClient {
 
         // Step 2 — Cache
         if (self.config.cache) {
-          const cacheResult = structureCache({ messages, system, tools }, self.config.cache);
+          const cacheResult = structureCache(
+            { messages, system, tools: tools as Anthropic.Tool[] | undefined },
+            self.config.cache,
+          );
           messages = cacheResult.request.messages;
           system = cacheResult.request.system;
           tools = cacheResult.request.tools;
@@ -60,7 +63,9 @@ export class BeskarClient {
         });
 
         // Step 5 — Metrics
-        self.tracker.track(response.usage);
+        if (self.config.metrics) {
+          self.tracker.track(response.usage);
+        }
 
         return response;
       },

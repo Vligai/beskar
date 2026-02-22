@@ -7,9 +7,10 @@ const { mockCreate } = vi.hoisted(() => {
 });
 
 vi.mock('@anthropic-ai/sdk', () => ({
-  default: vi.fn().mockImplementation(() => ({
-    messages: { create: mockCreate },
-  })),
+  // Must use `function` (not arrow) so it can be called with `new`
+  default: vi.fn().mockImplementation(function () {
+    return { messages: { create: mockCreate } };
+  }),
 }));
 
 import { BeskarClient } from './client.js';
