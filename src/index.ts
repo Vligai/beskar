@@ -1,3 +1,5 @@
+export { BeskarClient } from './client.js';
+
 export type {
   BeskarConfig,
   BeskarMessage,
@@ -5,6 +7,7 @@ export type {
   CacheConfig,
   CompressorConfig,
   MetricsConfig,
+  MetricsSummary,
   PrunerConfig,
   PrunerStrategy,
   TokenUsage,

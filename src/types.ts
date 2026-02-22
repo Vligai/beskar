@@ -43,3 +43,14 @@ export interface CacheBreakpoint {
   position: number;
   estimatedTokens: number;
 }
+
+export interface MetricsSummary {
+  totalCalls: number;
+  totalInputTokens: number;
+  totalOutputTokens: number;
+  totalCacheCreationTokens: number;
+  totalCacheReadTokens: number;
+  cacheHitRate: number;
+  estimatedCostUsd: number;
+  estimatedSavingsUsd: number;
+}
