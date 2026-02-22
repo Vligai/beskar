@@ -19,7 +19,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json",
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json && node -e \"require('fs').writeFileSync('dist/cjs/package.json', JSON.stringify({type:'commonjs'}))\"",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit"

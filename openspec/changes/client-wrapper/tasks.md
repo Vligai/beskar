@@ -40,12 +40,12 @@
 
 ## 6. Python `BeskarClient` (`python/src/beskar/client.py`)
 
-- [ ] 6.1 Implement `class BeskarClient` with `__init__(self, config: BeskarConfig)`; create `anthropic.Anthropic(api_key=config.api_key)` internally; initialize `create_metrics_tracker(config.metrics)`
-- [ ] 6.2 Expose `self.messages` as inner `_MessagesNamespace` with `create(self, **params) -> anthropic.types.Message`
-- [ ] 6.3 Expose `self.metrics` as inner `_MetricsNamespace` with `summary() -> MetricsSummary`
-- [ ] 6.4 Pipeline: (1) `prune_messages` if `config.pruner`, (2) `structure_cache` if `config.cache`, (3) `collapse_tool_chains` if `config.compressor`, (4) `self._anthropic.messages.create(**modified_params)`, (5) `tracker.track(response.usage)` if `config.metrics` — return response unchanged
-- [ ] 6.5 Update `python/src/beskar/__init__.py` to export `BeskarClient`
-- [ ] 6.6 Write `python/tests/test_client.py` with `unittest.mock.patch('anthropic.Anthropic')`:
+- [x] 6.1 Implement `class BeskarClient` with `__init__(self, config: BeskarConfig)`; create `anthropic.Anthropic(api_key=config.api_key)` internally; initialize `create_metrics_tracker(config.metrics)`
+- [x] 6.2 Expose `self.messages` as inner `_MessagesNamespace` with `create(self, **params) -> anthropic.types.Message`
+- [x] 6.3 Expose `self.metrics` as inner `_MetricsNamespace` with `summary() -> MetricsSummary`
+- [x] 6.4 Pipeline: (1) `prune_messages` if `config.pruner`, (2) `structure_cache` if `config.cache`, (3) `collapse_tool_chains` if `config.compressor`, (4) `self._anthropic.messages.create(**modified_params)`, (5) `tracker.track(response.usage)` if `config.metrics` — return response unchanged
+- [x] 6.5 Update `python/src/beskar/__init__.py` to export `BeskarClient`
+- [x] 6.6 Write `python/tests/test_client.py` with `unittest.mock.patch('anthropic.Anthropic')`:
   - Test: `messages.create()` returns mocked response
   - Test: with `cache` config → mock SDK receives `cache_control` on system
   - Test: with `pruner` config → mock SDK receives pruned messages
@@ -55,13 +55,13 @@
 
 ## 7. TypeScript Verification
 
-- [ ] 7.1 `npm run typecheck` — zero errors
-- [ ] 7.2 `npm run test:coverage` — passes 90% lines/functions/statements, 85% branches thresholds across all modules
-- [ ] 7.3 `npm run build` — compiles to both `dist/esm/` and `dist/cjs/` without errors
-- [ ] 7.4 Manual check: `import { BeskarClient } from 'beskar'` resolves from built output
+- [x] 7.1 `npm run typecheck` — zero errors
+- [x] 7.2 `npm run test:coverage` — passes 90% lines/functions/statements, 85% branches thresholds across all modules
+- [x] 7.3 `npm run build` — compiles to both `dist/esm/` and `dist/cjs/` without errors
+- [x] 7.4 Manual check: `import { BeskarClient } from 'beskar'` resolves from built output
 
 ## 8. Python Verification
 
-- [ ] 8.1 `mypy python/src/` — zero errors
-- [ ] 8.2 `pytest python/tests/ --cov=beskar --cov-fail-under=90` — full suite passes
-- [ ] 8.3 `pip install -e python/` in a fresh venv → `from beskar import BeskarClient` works
+- [x] 8.1 `mypy python/src/` — zero errors
+- [x] 8.2 `pytest python/tests/ --cov=beskar --cov-fail-under=90` — full suite passes
+- [x] 8.3 `pip install -e python/` in a fresh venv → `from beskar import BeskarClient` works
