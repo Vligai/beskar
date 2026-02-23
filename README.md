@@ -10,8 +10,6 @@
 
 Beskar wraps the Anthropic SDK to automatically cut token costs in production agentic loops — through intelligent prompt caching, context pruning, tool result compression, and a metrics layer that proves what you're saving.
 
-Named after the near-indestructible Mandalorian alloy. Token-efficient by design.
-
 ---
 
 ## The Problem
