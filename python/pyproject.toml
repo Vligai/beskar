@@ -7,7 +7,14 @@ name = "beskar"
 version = "0.1.0"
 description = "Claude-native token optimization for agentic pipelines"
 requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Vlad Ligai" }]
 dependencies = ["anthropic"]
+
+[project.urls]
+Homepage = "https://github.com/Vligai/beskar"
+Repository = "https://github.com/Vligai/beskar.git"
+Issues = "https://github.com/Vligai/beskar/issues"
 
 [project.optional-dependencies]
 dev = ["pytest", "pytest-cov", "mypy"]

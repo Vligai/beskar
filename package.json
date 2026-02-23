@@ -34,9 +34,12 @@
   ],
   "author": "Vlad Ligai",
   "license": "MIT",
-  "dependencies": {
-    "@anthropic-ai/sdk": "^0.78.0",
-    "beskar": "file:"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Vligai/beskar.git"
+  },
+  "peerDependencies": {
+    "@anthropic-ai/sdk": "^0.78.0"
   },
   "devDependencies": {
     "@vitest/coverage-istanbul": "^4.0.18",
