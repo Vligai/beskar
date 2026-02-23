@@ -43,9 +43,41 @@ Wraps every API call to capture the `usage` object from Claude's response. Track
 
 ---
 
+## Installation
+
+### TypeScript / Node.js
+
+```bash
+npm install beskar
+```
+
+Requires Node 18+. The `anthropic` SDK is a peer dependency — install it alongside:
+
+```bash
+npm install beskar @anthropic-ai/sdk
+```
+
+### Python
+
+```bash
+pip install beskar
+```
+
+Requires Python 3.9+. The `anthropic` SDK is pulled in automatically as a dependency.
+
+For development (tests + type checking):
+
+```bash
+pip install "beskar[dev]"
+```
+
+---
+
 ## Usage
 
 Beskar is a drop-in replacement for `anthropic.messages.create()`.
+
+### TypeScript
 
 ```typescript
 import { BeskarClient } from 'beskar';
@@ -67,6 +99,32 @@ const response = await client.messages.create({
 
 console.log(client.metrics.summary());
 // { cacheHitRate: 0.87, estimatedCost: '$0.0023', tokensSaved: 14200 }
+```
+
+### Python
+
+```python
+import os
+from beskar import BeskarClient
+from beskar.types import BeskarConfig, CacheConfig, PrunerConfig, CompressorConfig, MetricsConfig
+
+client = BeskarClient(BeskarConfig(
+    api_key=os.environ["ANTHROPIC_API_KEY"],
+    cache=CacheConfig(),
+    pruner=PrunerConfig(strategy="sliding-window", max_turns=20),
+    compressor=CompressorConfig(max_tool_result_tokens=500),
+    metrics=MetricsConfig(),
+))
+
+response = client.messages.create(
+    model="claude-sonnet-4-6",
+    max_tokens=1024,
+    system="You are a security researcher...",
+    messages=conversation_history,
+)
+
+print(client.metrics.summary())
+# MetricsSummary(cache_hit_rate=0.87, estimated_cost_usd=0.0023, estimated_savings_usd=0.012, ...)
 ```
 
 ---
