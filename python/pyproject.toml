@@ -9,6 +9,7 @@ description = "Claude-native token optimization for agentic pipelines"
 requires-python = ">=3.9"
 license = { text = "MIT" }
 authors = [{ name = "Vlad Ligai" }]
+readme = "README.md"
 dependencies = ["anthropic"]
 
 [project.urls]
