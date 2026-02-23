@@ -59,8 +59,12 @@ npm install beskar @anthropic-ai/sdk
 
 ### Python
 
+> **Note:** The Python package is not yet published to PyPI. Install locally from source:
+
 ```bash
-pip install beskar
+git clone https://github.com/Vligai/beskar.git
+cd beskar/python
+pip install -e .
 ```
 
 Requires Python 3.9+. The `anthropic` SDK is pulled in automatically as a dependency.
@@ -68,7 +72,7 @@ Requires Python 3.9+. The `anthropic` SDK is pulled in automatically as a depend
 For development (tests + type checking):
 
 ```bash
-pip install "beskar[dev]"
+pip install -e ".[dev]"
 ```
 
 ---
