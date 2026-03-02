@@ -178,7 +178,56 @@ This is a prerequisite for real-world adoption in latency-sensitive pipelines.
 
 ---
 
-### V2.8 — Model-Agnostic Provider Layer
+### V2.8 — Session State Snapshots
+
+**What:** Serialize and restore the optimized context state — pruned message history, metrics summary, active cache breakpoints — so a fresh `BeskarClient` instance can resume a prior session without replaying raw turn history.
+
+**Why:** Agentic pipelines increasingly spawn a new agent instance (fresh context) for each discrete task rather than running one infinitely-growing conversation. Without a handoff mechanism, the new instance starts blind — losing compressed findings, tool chain outcomes, and established context. Beskar is uniquely positioned to export a *compressed* snapshot rather than raw history, so the handoff payload is already optimized.
+
+**Design:**
+```ts
+// Export from a completed or mid-run session:
+const snapshot = client.exportSnapshot();
+// { messages: BeskarMessage[], metrics: SessionMetrics, cacheBreakpoints: CacheBreakpoint[] }
+
+// Restore in a new instance (e.g., a spawned sub-agent):
+const subAgent = new BeskarClient(config, { snapshot });
+```
+
+- The snapshot format is JSON-serializable for persistence to disk or KV store.
+- `messages` in the snapshot are already pruned/compressed — not raw history.
+- Cache breakpoints are included so the new instance knows what's already cached within TTL, avoiding redundant cache creation costs.
+- Snapshot export should be opt-in via `snapshots: { enabled: true }` in `BeskarConfig`.
+
+**V1 data to collect:** Mean message count and token size at handoff points in multi-step pipelines.
+
+---
+
+### V2.9 — Cross-Agent Cache Coordination
+
+**What:** When multiple parallel agent instances share the same stable prefix (identical system prompt, tool definitions, or long-context documents), coordinate cache breakpoint creation so the first agent to run pays the creation cost and subsequent agents within the TTL window get cache hits.
+
+**Why:** Parallel execution patterns are common in multi-step pipelines — a planning stage fans out to N worker agents that all receive the same system prompt and tool definitions. Without coordination, each worker independently creates cache entries for the same content, paying creation cost N times and warming the cache only once. A shared coordination layer eliminates N-1 redundant creation charges.
+
+**Design:**
+- A `CacheCoordinator` instance is shared across `BeskarClient` instances in the same process (or process group via a lightweight IPC adapter).
+- Before applying cache breakpoints, the cache module queries the coordinator: "has this prefix hash been cached in the last 5 minutes?"
+- If yes, skip cache creation for that block (hit is guaranteed). If no, create and register the hash.
+- The coordinator is pluggable: in-process (default), Redis-backed (for distributed agents), or file-backed (for subprocess-based orchestration).
+
+```ts
+import { CacheCoordinator } from 'beskar/coordination';
+
+const coordinator = new CacheCoordinator(); // in-process default
+
+const agents = workers.map(() => new BeskarClient({ ...config, coordinator }));
+```
+
+**V2.8 data to collect:** Cache creation event frequency across parallel calls with identical prefixes.
+
+---
+
+### V2.10 — Model-Agnostic Provider Layer
 
 **What:** Abstract the Claude-specific layer so Beskar can wrap other providers (OpenAI, Gemini, local models via OpenAI-compatible APIs).
 
@@ -201,8 +250,10 @@ This is a prerequisite for real-world adoption in latency-sensitive pipelines.
 | V2.5 | Output filler cleanup | Medium | Low | Filler frequency |
 | V2.6 | System prompt auditor | Medium | High | Prompt size distribution |
 | V2.7 | Streaming support | High (adoption) | Medium | None |
-| V2.8 | Provider agnostic | Low (near-term) | Very High | None |
+| V2.8 | Session state snapshots | High (multi-agent) | Medium | Handoff token size |
+| V2.9 | Cross-agent cache coordination | High (multi-agent) | Medium | Parallel creation frequency |
+| V2.10 | Provider agnostic | Low (near-term) | Very High | None |
 
-Recommended V2 sequencing: **V2.2 → V2.7 → V2.1 → V2.3 → V2.4 → V2.5 → V2.6 → V2.8**
+Recommended V2 sequencing: **V2.2 → V2.7 → V2.1 → V2.8 → V2.9 → V2.3 → V2.4 → V2.5 → V2.6 → V2.10**
 
-Rationale: Fix pricing accuracy first (low effort, needed for routing ROI measurement), unlock streaming adoption, then tackle the high-ROI optimization features.
+Rationale: Fix pricing accuracy first (low effort, needed for routing ROI measurement), unlock streaming adoption, then add multi-agent handoff (V2.8 + V2.9) — these share design surface with the snapshot/coordinator layer and unblock a distinct class of users before tackling the higher-effort optimization features.
