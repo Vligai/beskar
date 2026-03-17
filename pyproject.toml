@@ -24,7 +24,6 @@ dev = ["pytest", "pytest-cov", "mypy"]
 where = ["src"]
 
 [tool.setuptools_scm]
-root = ".."
 
 [tool.mypy]
 strict = true

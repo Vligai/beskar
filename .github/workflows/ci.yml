@@ -7,35 +7,6 @@ on:
     branches: [main]
 
 jobs:
-  node:
-    name: Typecheck, Test & Coverage (Node ${{ matrix.node-version }})
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x, 22.x]
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Test with coverage
-        run: npm run test:coverage
-
-      - name: Build
-        run: npm run build
-
   python:
     name: Typecheck & Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
@@ -53,10 +24,44 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: pip install -e "python/[dev]"
+        run: pip install -e ".[dev]"
 
       - name: Typecheck
-        run: mypy python/src/
+        run: mypy src/
 
       - name: Test with coverage
-        run: pytest python/tests/ --cov=beskar --cov-fail-under=90
+        run: pytest tests/ --cov=beskar --cov-fail-under=90
+
+  node:
+    name: Typecheck, Test & Coverage (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: typescript
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+          cache-dependency-path: typescript/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test with coverage
+        run: npm run test:coverage
+
+      - name: Build
+        run: npm run build
