@@ -309,14 +309,14 @@ Excellent coverage and organization. Higher than the TS review because the orpha
 
 | # | Issue | File(s) | Severity | Status |
 |---|-------|---------|----------|--------|
-| 7 | Orphaned `it()` blocks outside `describe` | `typescript/src/cache/index.test.ts` | Low | TS only |
-| 8 | `collapse_tool_chains` skips multi-tool turns | Both languages | Low | Unchanged |
-| 9 | Duplicate `estimate_tokens` in cache + compressor | Both languages | Low | Unchanged |
-| 10 | No debug/verbose mode | Both languages | Medium | Unchanged |
-| 11 | No custom error types | Both languages | Low | Unchanged |
+| 7 | Orphaned `it()` blocks outside `describe` | `typescript/src/cache/index.test.ts` | Low | **Fixed** |
+| 8 | `collapse_tool_chains` skips multi-tool turns | Both languages | Low | **Documented** |
+| 9 | Duplicate `estimate_tokens` in cache + compressor | Both languages | Low | **Fixed** |
+| 10 | No debug/verbose mode | Both languages | Medium | Deferred |
+| 11 | No custom error types | Both languages | Low | Deferred |
 | N1 | `.gitignore` gaps for root-level Python | `.gitignore` | Medium | **Fixed** |
-| N2 | `client.py` heavy `Any` usage | `src/beskar/client.py` | Low | **New** |
-| N3 | Vestigial `python/` directory | `python/` | Low | **New** |
+| N2 | `client.py` heavy `Any` usage | `src/beskar/client.py` | Low | Deferred |
+| N3 | Vestigial `python/` directory | `python/` | Low | N/A (untracked) |
 
 ---
 
@@ -346,11 +346,11 @@ Excellent coverage and organization. Higher than the TS review because the orpha
 
 | Dimension | Score | Previous | Notes |
 |-----------|-------|----------|-------|
-| Architecture | 9/10 | 7.5 | All critical + high-priority bugs fixed, per-model pricing |
+| Architecture | 9/10 | 7.5 | All bugs fixed, shared utilities extracted |
 | Security | 9/10 | 8.5 | `.gitignore` fixed, minor `Any` concern |
-| Usability | 8.5/10 | 6.5 | README, pipeline, pricing, docs all fixed |
-| Testing | 8.5/10 | 8.5 | 97% Python, 96 TS tests passing |
-| **Overall** | **8.5/10** | **7.5** | **All critical and high-priority issues resolved** |
+| Usability | 9/10 | 6.5 | README, pipeline, pricing, docs, multi-tool docs all fixed |
+| Testing | 8.5/10 | 8.5 | 97% Python, 96 TS tests passing, orphaned blocks fixed |
+| **Overall** | **9/10** | **7.5** | **All critical, high, and most medium issues resolved** |
 
 ---
 
@@ -365,14 +365,14 @@ Excellent coverage and organization. Higher than the TS review because the orpha
 ### ~~Should Fix~~ — Resolved
 5. ~~Document `summarize` as a stub with docstrings~~ **DOCUMENTED**
 6. ~~Add per-model pricing map~~ **FIXED**
-7. Remove or document vestigial `python/` directory
-8. Improve `client.py` type annotations
+7. ~~Remove or document vestigial `python/` directory~~ N/A (untracked build artifacts only)
+8. Improve `client.py` type annotations (deferred — changes public API)
 
-### Nice to Have (V1.x)
-9. Fix orphaned TS test blocks
-10. Document multi-tool turn limitation
-11. Extract shared `estimate_tokens` utility
-12. Add debug/verbose logging mode
+### ~~Nice to Have~~ — Mostly Resolved
+9. ~~Fix orphaned TS test blocks~~ **FIXED**
+10. ~~Document multi-tool turn limitation~~ **DOCUMENTED**
+11. ~~Extract shared `estimate_tokens` utility~~ **FIXED**
+12. Add debug/verbose logging mode (deferred — feature work)
 
 ### V2 Roadmap Items
 13. Real LLM-based summarization (V2.1)
@@ -400,3 +400,4 @@ Previous review (`review.md`) was TypeScript-only and is now outdated. This revi
 |------|-------------|----------|
 | 2026-03-21 | Issues 1, 2, 3, N1 | Python 87/87 tests, TS 96/96 tests |
 | 2026-03-21 | Issues 4 (documented), 5 (per-model pricing) | Python 87/87 (97%), TS 96/96 |
+| 2026-03-21 | Issues 7, 8 (documented), 9 (shared utility) | Python 87/87 (97%), TS 96/96 |

@@ -5,6 +5,11 @@ export type BeskarMessage = Anthropic.MessageParam;
 
 export type PrunerStrategy = 'sliding-window' | 'summarize' | 'importance';
 
+/** Estimate token count using 4-chars-per-token heuristic. */
+export function estimateTokens(text: string): number {
+  return Math.floor(text.length / 4);
+}
+
 export interface CacheConfig {
   minTokenThreshold?: number;
 }

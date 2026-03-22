@@ -139,7 +139,6 @@ describe('structureCache — message breakpoints', () => {
     expect(breakpoints).toHaveLength(0);
     expect(request.messages[0].content).toBe(ABOVE_THRESHOLD);
   });
-});
 
   it('adds breakpoint to old user message with large array content (text block)', () => {
     const req: CacheStructureRequest = {
@@ -186,6 +185,7 @@ describe('structureCache — message breakpoints', () => {
     const { breakpoints } = structureCache(req);
     expect(breakpoints).toHaveLength(0);
   });
+});
 
 // --- 4-breakpoint limit ---
 

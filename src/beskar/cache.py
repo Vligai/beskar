@@ -5,7 +5,7 @@ import json
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, TypedDict, Union, cast
 
-from .types import BeskarMessage, CacheBreakpoint, CacheConfig
+from .types import BeskarMessage, CacheBreakpoint, CacheConfig, estimate_tokens
 
 
 class _CacheRequestRequired(TypedDict):
@@ -21,11 +21,6 @@ class CacheRequest(_CacheRequestRequired, total=False):
 class CacheResult:
     request: CacheRequest
     breakpoints: List[CacheBreakpoint]
-
-
-def estimate_tokens(text: str) -> int:
-    """Estimate token count using 4-chars-per-token heuristic."""
-    return len(text) // 4
 
 
 def structure_cache(

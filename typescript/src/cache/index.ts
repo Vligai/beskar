@@ -1,4 +1,5 @@
 import type Anthropic from '@anthropic-ai/sdk';
+import { estimateTokens } from '../types.js';
 import type { BeskarMessage, CacheBreakpoint, CacheConfig } from '../types.js';
 
 export interface CacheStructureRequest {
@@ -12,9 +13,7 @@ export interface CacheStructureResult {
   breakpoints: CacheBreakpoint[];
 }
 
-export function estimateTokens(text: string): number {
-  return Math.floor(text.length / 4);
-}
+export { estimateTokens } from '../types.js';
 
 function serializeToolText(tool: Anthropic.Tool): string {
   return JSON.stringify(tool);

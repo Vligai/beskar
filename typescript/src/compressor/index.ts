@@ -1,4 +1,5 @@
 import type Anthropic from '@anthropic-ai/sdk';
+import { estimateTokens } from '../types.js';
 import type { BeskarMessage, CompressorConfig } from '../types.js';
 
 type AnyContentBlock = { type: string; id?: string; tool_use_id?: string; name?: string; text?: string };
@@ -24,8 +25,7 @@ export function compressToolResult(
     return block;
   }
 
-  const estimatedTokens = Math.floor(text.length / 4);
-  if (estimatedTokens <= config.maxToolResultTokens) return block;
+  if (estimateTokens(text) <= config.maxToolResultTokens) return block;
 
   const truncated = text.slice(0, config.maxToolResultTokens * 4) + '\n[truncated]';
 
@@ -48,6 +48,13 @@ export function compressToolResult(
   return { ...block, content: newContent };
 }
 
+/**
+ * Replace old single-tool pairs with a synthetic summary assistant message.
+ *
+ * Only collapses turns that contain exactly one `tool_use` block.
+ * Multi-tool turns (parallel tool calls) are left unchanged — this is a V1
+ * simplification, not a bug.
+ */
 export function collapseToolChains(
   messages: BeskarMessage[],
   config: CompressorConfig,

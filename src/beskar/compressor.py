@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Set
 
-from .types import BeskarMessage, CompressorConfig
+from .types import BeskarMessage, CompressorConfig, estimate_tokens
 
 
 def compress_tool_result(block: Dict[str, Any], config: CompressorConfig) -> Dict[str, Any]:
@@ -27,8 +27,7 @@ def compress_tool_result(block: Dict[str, Any], config: CompressorConfig) -> Dic
     else:
         return block
 
-    estimated_tokens = len(text) // 4
-    if estimated_tokens <= config.max_tool_result_tokens:
+    if estimate_tokens(text) <= config.max_tool_result_tokens:
         return block
 
     truncated = text[: config.max_tool_result_tokens * 4] + "\n[truncated]"
@@ -54,6 +53,10 @@ def collapse_tool_chains(
     messages: List[BeskarMessage], config: CompressorConfig
 ) -> List[BeskarMessage]:
     """Replace old single-tool pairs with a synthetic summary assistant message.
+
+    Only collapses turns that contain exactly one ``tool_use`` block.
+    Multi-tool turns (parallel tool calls) are left unchanged — this is a V1
+    simplification, not a bug.
 
     Never mutates the input list or message objects.
     """

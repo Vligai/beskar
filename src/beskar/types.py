@@ -12,6 +12,11 @@ BeskarMessage = MessageParam
 PrunerStrategy = Literal["sliding-window", "summarize", "importance"]
 
 
+def estimate_tokens(text: str) -> int:
+    """Estimate token count using 4-chars-per-token heuristic."""
+    return len(text) // 4
+
+
 @dataclass
 class CacheBreakpoint:
     position: int
