@@ -2,7 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import type { BeskarConfig, MetricsSummary } from './types.js';
 import { pruneMessages } from './pruner/index.js';
 import { structureCache } from './cache/index.js';
-import { collapseToolChains } from './compressor/index.js';
+import { compressToolResult, collapseToolChains } from './compressor/index.js';
 import { createMetricsTracker } from './metrics/index.js';
 import type { MetricsTracker } from './metrics/index.js';
 
@@ -49,9 +49,22 @@ export class BeskarClient {
           tools = cacheResult.request.tools;
         }
 
-        // Step 3 — Compressor (chain collapse)
+        // Step 3 — Compressor (truncate + chain collapse)
         if (self.config.compressor) {
-          messages = collapseToolChains(messages, self.config.compressor);
+          const compressorConfig = self.config.compressor;
+          messages = messages.map((msg) => {
+            if (msg.role === 'user' && Array.isArray(msg.content)) {
+              const newContent = (msg.content as Anthropic.ToolResultBlockParam[]).map(
+                (block) =>
+                  (block as { type: string }).type === 'tool_result'
+                    ? compressToolResult(block, compressorConfig)
+                    : block,
+              );
+              return { ...msg, content: newContent } as typeof msg;
+            }
+            return msg;
+          });
+          messages = collapseToolChains(messages, compressorConfig);
         }
 
         // Step 4 — API call

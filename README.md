@@ -87,10 +87,10 @@ import { BeskarClient } from 'beskar';
 
 const client = new BeskarClient({
   apiKey: process.env.ANTHROPIC_API_KEY,
-  cache: { enabled: true },
+  cache: {},
   pruner: { strategy: 'sliding-window', maxTurns: 20 },
-  compressor: { enabled: true, maxToolResultTokens: 500 },
-  metrics: { enabled: true },
+  compressor: { maxToolResultTokens: 500 },
+  metrics: {},
 });
 
 const response = await client.messages.create({

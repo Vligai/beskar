@@ -42,12 +42,12 @@ export function structureCache(
       }
     } else if (system.length > 0) {
       const lastIdx = system.length - 1;
-      const tokens = estimateTokens(system[lastIdx].text);
-      if (tokens >= threshold) {
+      const totalTokens = system.reduce((sum, block) => sum + estimateTokens(block.text), 0);
+      if (totalTokens >= threshold) {
         system = system.map((block, i) =>
           i === lastIdx ? { ...block, cache_control: { type: 'ephemeral' as const } } : block,
         );
-        breakpoints.push({ position: lastIdx, estimatedTokens: tokens });
+        breakpoints.push({ position: lastIdx, estimatedTokens: totalTokens });
         placed++;
       }
     }

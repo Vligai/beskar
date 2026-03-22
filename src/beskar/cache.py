@@ -62,13 +62,13 @@ def structure_cache(
                 placed += 1
         elif isinstance(system, list) and len(system) > 0:
             last_idx = len(system) - 1
-            tokens = estimate_tokens(str(system[last_idx].get("text", "")))
-            if tokens >= threshold:
+            total_tokens = sum(estimate_tokens(str(block.get("text", ""))) for block in system)
+            if total_tokens >= threshold:
                 system = [
                     {**block, "cache_control": {"type": "ephemeral"}} if i == last_idx else block
                     for i, block in enumerate(system)
                 ]
-                breakpoints.append(CacheBreakpoint(position=last_idx, estimated_tokens=tokens))
+                breakpoints.append(CacheBreakpoint(position=last_idx, estimated_tokens=total_tokens))
                 placed += 1
 
     # 2. Tools breakpoint

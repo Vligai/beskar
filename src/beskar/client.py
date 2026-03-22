@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional
 import anthropic
 
 from .cache import structure_cache
-from .compressor import collapse_tool_chains
+from .compressor import collapse_tool_chains, compress_tool_result
 from .metrics import MetricsTracker, create_metrics_tracker
 from .pruner import prune_messages
 from .types import BeskarConfig, MetricsSummary
@@ -50,9 +50,21 @@ class BeskarClient:
                 system = cache_result.request.get("system", system)
                 tools = cache_result.request.get("tools", tools)
 
-            # Step 3 — Compressor (chain collapse)
+            # Step 3 — Compressor (truncate + chain collapse)
             if config.compressor:
-                messages = collapse_tool_chains(messages, config.compressor)
+                compressed: list[Any] = []
+                for msg in messages:
+                    if msg.get("role") == "user" and isinstance(msg.get("content"), list):
+                        new_content = [
+                            compress_tool_result(block, config.compressor)
+                            if isinstance(block, dict) and block.get("type") == "tool_result"
+                            else block
+                            for block in msg["content"]
+                        ]
+                        compressed.append({**msg, "content": new_content})
+                    else:
+                        compressed.append(msg)
+                messages = collapse_tool_chains(compressed, config.compressor)
 
             # Step 4 — API call
             modified_params = dict(params)
