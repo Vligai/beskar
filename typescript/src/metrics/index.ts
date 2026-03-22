@@ -1,12 +1,52 @@
 import type Anthropic from '@anthropic-ai/sdk';
 import type { MetricsConfig, MetricsSummary, TokenUsage } from '../types.js';
 
-export const PRICING = {
-  inputPerMToken: 3.0,
-  outputPerMToken: 15.0,
-  cacheCreationPerMToken: 3.75,
-  cacheReadPerMToken: 0.3,
+interface ModelPricing {
+  inputPerMToken: number;
+  outputPerMToken: number;
+  cacheCreationPerMToken: number;
+  cacheReadPerMToken: number;
+}
+
+/**
+ * Per-model pricing (USD per million tokens).
+ * Falls back to Sonnet rates for unrecognised model strings.
+ */
+export const PRICING_BY_MODEL: Record<string, ModelPricing> = {
+  'claude-sonnet-4-20250514': {
+    inputPerMToken: 3.0,
+    outputPerMToken: 15.0,
+    cacheCreationPerMToken: 3.75,
+    cacheReadPerMToken: 0.3,
+  },
+  'claude-haiku-4-5-20251001': {
+    inputPerMToken: 0.8,
+    outputPerMToken: 4.0,
+    cacheCreationPerMToken: 1.0,
+    cacheReadPerMToken: 0.08,
+  },
+  'claude-opus-4-20250514': {
+    inputPerMToken: 15.0,
+    outputPerMToken: 75.0,
+    cacheCreationPerMToken: 18.75,
+    cacheReadPerMToken: 1.5,
+  },
 };
+
+const MODEL_ALIASES: Record<string, string> = {
+  'claude-sonnet-4-6': 'claude-sonnet-4-20250514',
+  'claude-haiku-4-5': 'claude-haiku-4-5-20251001',
+  'claude-opus-4-6': 'claude-opus-4-20250514',
+};
+
+/** Default pricing (Sonnet) — kept for backward compatibility. */
+export const PRICING: ModelPricing = PRICING_BY_MODEL['claude-sonnet-4-20250514'];
+
+function resolvePricing(model?: string): ModelPricing {
+  if (!model) return PRICING;
+  const canonical = MODEL_ALIASES[model] ?? model;
+  return PRICING_BY_MODEL[canonical] ?? PRICING;
+}
 
 export function mapUsage(raw: Anthropic.Usage): TokenUsage {
   return {
@@ -17,23 +57,25 @@ export function mapUsage(raw: Anthropic.Usage): TokenUsage {
   };
 }
 
-export function estimateCostUsd(usage: TokenUsage): number {
+export function estimateCostUsd(usage: TokenUsage, model?: string): number {
+  const p = resolvePricing(model);
   return (
-    (usage.inputTokens / 1_000_000) * PRICING.inputPerMToken +
-    (usage.outputTokens / 1_000_000) * PRICING.outputPerMToken +
-    (usage.cacheCreationInputTokens / 1_000_000) * PRICING.cacheCreationPerMToken +
-    (usage.cacheReadInputTokens / 1_000_000) * PRICING.cacheReadPerMToken
+    (usage.inputTokens / 1_000_000) * p.inputPerMToken +
+    (usage.outputTokens / 1_000_000) * p.outputPerMToken +
+    (usage.cacheCreationInputTokens / 1_000_000) * p.cacheCreationPerMToken +
+    (usage.cacheReadInputTokens / 1_000_000) * p.cacheReadPerMToken
   );
 }
 
-export function estimateSavingsUsd(usage: TokenUsage): number {
-  const inputPricePerToken = PRICING.inputPerMToken / 1_000_000;
-  const cacheReadPricePerToken = PRICING.cacheReadPerMToken / 1_000_000;
+export function estimateSavingsUsd(usage: TokenUsage, model?: string): number {
+  const p = resolvePricing(model);
+  const inputPricePerToken = p.inputPerMToken / 1_000_000;
+  const cacheReadPricePerToken = p.cacheReadPerMToken / 1_000_000;
   return usage.cacheReadInputTokens * (inputPricePerToken - cacheReadPricePerToken);
 }
 
 export interface MetricsTracker {
-  track(raw: Anthropic.Usage): TokenUsage;
+  track(raw: Anthropic.Usage, model?: string): TokenUsage;
   summary(): MetricsSummary;
 }
 
@@ -43,10 +85,12 @@ export function createMetricsTracker(config?: MetricsConfig): MetricsTracker {
   let totalOutputTokens = 0;
   let totalCacheCreationTokens = 0;
   let totalCacheReadTokens = 0;
+  let lastModel: string | undefined;
 
   return {
-    track(raw: Anthropic.Usage): TokenUsage {
+    track(raw: Anthropic.Usage, model?: string): TokenUsage {
       const usage = mapUsage(raw);
+      if (model !== undefined) lastModel = model;
       totalCalls++;
       totalInputTokens += usage.inputTokens;
       totalOutputTokens += usage.outputTokens;
@@ -72,8 +116,8 @@ export function createMetricsTracker(config?: MetricsConfig): MetricsTracker {
         totalCacheCreationTokens,
         totalCacheReadTokens,
         cacheHitRate,
-        estimatedCostUsd: estimateCostUsd(accumulated),
-        estimatedSavingsUsd: estimateSavingsUsd(accumulated),
+        estimatedCostUsd: estimateCostUsd(accumulated, lastModel),
+        estimatedSavingsUsd: estimateSavingsUsd(accumulated, lastModel),
       };
     },
   };

@@ -12,6 +12,11 @@ export interface CacheConfig {
 export interface PrunerConfig {
   strategy: PrunerStrategy;
   maxTurns?: number;
+  /**
+   * Reserved for V2 — will specify the model used for LLM-based summarization.
+   * Currently unused. The "summarize" strategy is a V1 stub that inserts a
+   * placeholder string, not a real summary.
+   */
   summaryModel?: string;
 }
 

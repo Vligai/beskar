@@ -68,6 +68,13 @@ function slidingWindow(messages: BeskarMessage[], maxTurns: number): BeskarMessa
   return messages.slice(cut);
 }
 
+/**
+ * Drop oldest turns and prepend a placeholder summary message.
+ *
+ * NOTE: This is a V1 stub. It does NOT call an LLM to produce a real summary.
+ * The dropped turns are replaced with a static string indicating how many turns
+ * were removed. Real LLM-based summarization is planned for V2.
+ */
 function summarize(messages: BeskarMessage[], maxTurns: number): BeskarMessage[] {
   if (maxTurns >= messages.length) return messages.slice();
 

@@ -82,6 +82,12 @@ def _sliding_window(
 def _summarize(
     messages: List[BeskarMessage], max_turns: int
 ) -> List[BeskarMessage]:
+    """Drop oldest turns and prepend a placeholder summary message.
+
+    NOTE: This is a V1 stub. It does NOT call an LLM to produce a real summary.
+    The dropped turns are replaced with a static string indicating how many turns
+    were removed. Real LLM-based summarization is planned for V2.
+    """
     if max_turns >= len(messages):
         return list(messages)
 

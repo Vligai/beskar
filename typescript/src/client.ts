@@ -77,7 +77,7 @@ export class BeskarClient {
 
         // Step 5 — Metrics
         if (self.config.metrics) {
-          self.tracker.track(response.usage);
+          self.tracker.track(response.usage, params.model);
         }
 
         return response;

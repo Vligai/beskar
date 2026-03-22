@@ -25,6 +25,16 @@ class CacheConfig:
 
 @dataclass
 class PrunerConfig:
+    """Configuration for the context pruner.
+
+    Attributes:
+        strategy: Pruning strategy. ``"summarize"`` is a V1 stub that inserts a
+            placeholder string — it does NOT call an LLM. Use ``"sliding-window"``
+            or ``"importance"`` for production workloads.
+        max_turns: Maximum number of turns to retain. ``None`` means no limit.
+        summary_model: Reserved for V2 — will specify the model used for
+            LLM-based summarization. Currently unused.
+    """
     strategy: PrunerStrategy = "sliding-window"
     max_turns: Optional[int] = None
     summary_model: Optional[str] = None

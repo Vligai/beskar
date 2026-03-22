@@ -80,7 +80,7 @@ class BeskarClient:
 
             # Step 5 — Metrics
             if config.metrics:
-                client._tracker.track(response.usage)
+                client._tracker.track(response.usage, model=params.get("model"))
 
             return response
 
