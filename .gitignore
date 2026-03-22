@@ -4,6 +4,8 @@ settings.local.json
 node_modules/
 dist/
 coverage/
+.vscode/
+.coverage
 
 # Python
 python/**/__pycache__/

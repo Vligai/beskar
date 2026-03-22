@@ -9,6 +9,17 @@ Beskar is a Claude-native token optimization library. It wraps the Anthropic SDK
 **V1 scope:** prompt caching auto-structuring, context window pruning, tool result compression, token metrics layer.
 **V2 scope (future):** extended thinking budget control, model routing (Sonnet vs Haiku), output filler cleanup, system prompt auditor, model-agnostic support.
 
+## Language & Project Structure
+
+**Primary language: Python.** The Python implementation lives at the repo root.
+
+```
+src/beskar/      # Python source — primary implementation
+tests/           # Python tests
+pyproject.toml   # Python package config (primary)
+typescript/      # TypeScript mirror (secondary)
+```
+
 ## Domain Knowledge: Claude-Specific Rules
 
 This is the core expertise Beskar encodes. Get these right.
@@ -43,30 +54,30 @@ This is the core expertise Beskar encodes. Get these right.
 Four independent modules, composable as middleware over the raw Anthropic SDK client.
 
 ```
-src/
-  cache/       # Prompt caching auto-structurer
-  pruner/      # Context window management for agentic loops
-  compressor/  # Tool result and turn compression
-  metrics/     # Token usage tracking, cost estimation, cache hit rates
-  client.ts    # BeskarClient — wraps Anthropic SDK, applies modules in pipeline
-  types.ts     # Shared types (BeskarConfig, TokenBudget, CacheBreakpoint, etc.)
+src/beskar/
+  cache.py       # Prompt caching auto-structurer
+  pruner.py      # Context window management for agentic loops
+  compressor.py  # Tool result and turn compression
+  metrics.py     # Token usage tracking, cost estimation, cache hit rates
+  client.py      # BeskarClient — wraps Anthropic SDK, applies modules in pipeline
+  types.py       # Shared types (BeskarConfig, TokenUsage, CacheBreakpoint, etc.)
 ```
 
 ### Module Responsibilities
 
-**`cache/`** — Given a messages array and system prompt, restructures content blocks to place `cache_control` breakpoints optimally. Must check minimum token thresholds before applying. Tracks which breakpoints are within the 4-breakpoint limit.
+**`cache.py`** — Given a messages array and system prompt, restructures content blocks to place `cache_control` breakpoints optimally. Must check minimum token thresholds before applying. Tracks which breakpoints are within the 4-breakpoint limit.
 
-**`pruner/`** — Manages a rolling context window for long agentic loops. Strategies: sliding window (drop oldest turns), summarization (replace old turns with a compressed summary turn), semantic importance scoring (drop low-signal turns). Must never drop turns that contain unresolved tool calls.
+**`pruner.py`** — Manages a rolling context window for long agentic loops. Strategies: sliding window (drop oldest turns), summarization (replace old turns with a compressed summary turn), semantic importance scoring (drop low-signal turns). Must never drop turns that contain unresolved tool calls.
 
-**`compressor/`** — Intercepts tool results before they're appended to context. Strips large non-essential fields (e.g., raw HTML, verbose JSON). Collapses completed tool call chains (tool_use + tool_result pairs) into a single summary assistant message once those results are no longer referenced.
+**`compressor.py`** — Intercepts tool results before they're appended to context. Strips large non-essential fields (e.g., raw HTML, verbose JSON). Collapses completed tool call chains (tool_use + tool_result pairs) into a single summary assistant message once those results are no longer referenced.
 
-**`metrics/`** — Wraps each API call to capture `usage` from the response. Tracks: input tokens, output tokens, cache creation tokens, cache read tokens. Derives: cache hit rate, estimated cost (using current Anthropic pricing), tokens saved vs. uncached baseline.
+**`metrics.py`** — Wraps each API call to capture `usage` from the response. Tracks: input tokens, output tokens, cache creation tokens, cache read tokens. Derives: cache hit rate, estimated cost (using current Anthropic pricing), tokens saved vs. uncached baseline.
 
-**`client.ts`** — `BeskarClient` is the main entry point. Accepts a `BeskarConfig` that enables/configures each module. Exposes the same interface as `Anthropic.messages.create()` so it's a drop-in replacement.
+**`client.py`** — `BeskarClient` is the main entry point. Accepts a `BeskarConfig` that enables/configures each module. Exposes the same interface as the Anthropic client so it's a drop-in replacement.
 
 ## Key Design Constraints
 
-- **Drop-in replacement** for `anthropic.messages.create()` — no user-side API changes required beyond swapping the client.
+- **Drop-in replacement** for the Anthropic Python SDK client — no user-side API changes required beyond swapping the client.
 - **Non-destructive** — original message semantics must be preserved. Compression/pruning must never break tool call linkage (`tool_use_id` pairing).
 - **Measurable** — every optimization must be quantifiable. The metrics module is not optional; it's how we prove Beskar works.
 - **Opt-in per feature** — each module can be independently disabled. Users may want caching without pruning, etc.
@@ -75,28 +86,31 @@ src/
 
 **These are non-negotiable and apply to every module change:**
 
-- Every function with logic must have a corresponding `*.test.ts` file colocated in the same directory.
-- Coverage thresholds enforced in CI: **90% lines/functions/statements, 85% branches**. A task is not complete until its tests pass these thresholds locally (`npm run test:coverage`).
-- `src/types.ts` and `src/index.ts` are excluded from coverage (type-only, no executable lines).
-- Test files use Vitest (`describe`, `it`, `expect`). No Jest.
-- For functions that call the Anthropic SDK, use `vi.mock('@anthropic-ai/sdk')` — never make real API calls in tests.
+- Every module with logic must have a corresponding `test_*.py` file in `tests/`.
+- Coverage thresholds enforced in CI: **90% overall**. A task is not complete until tests pass locally.
+- Test files use `pytest`. No unittest.
+- For functions that call the Anthropic SDK, use `unittest.mock` or `pytest-mock` — never make real API calls in tests.
 
 ### Commands
 
 ```bash
-npm test                # run all tests (no coverage)
-npm run test:coverage   # run with coverage — must pass thresholds
-npm run typecheck       # tsc --noEmit, zero errors required
-npm run build           # compile to dist/esm/ and dist/cjs/
+pip install -e ".[dev]"       # install with dev dependencies
+pytest                         # run all tests
+pytest --cov=beskar --cov-fail-under=90   # run with coverage — must pass threshold
+mypy src/                      # typecheck, zero errors required
 ```
 
 ### CI Pipeline
 
 `.github/workflows/ci.yml` runs on every push and PR to `main`:
-1. Typecheck (`tsc --noEmit`)
-2. Test with coverage (`vitest run --coverage`) — fails if thresholds not met
-3. Build (`tsc` dual output)
 
+**Python (primary):**
+1. Typecheck (`mypy src/`)
+2. Test with coverage (`pytest --cov=beskar --cov-fail-under=90`)
+Tested against Python 3.9, 3.11, and 3.12.
+
+**TypeScript (secondary, in `typescript/`):**
+1. Typecheck, test:coverage, build
 Tested against Node 18, 20, and 22.
 
 ## OpenSpec Workflow
