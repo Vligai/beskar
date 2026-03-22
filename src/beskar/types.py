@@ -12,6 +12,18 @@ BeskarMessage = MessageParam
 PrunerStrategy = Literal["sliding-window", "summarize", "importance"]
 
 
+class BeskarError(Exception):
+    """Base exception for all Beskar-specific errors."""
+
+
+class PrunerError(BeskarError):
+    """Raised when the pruner produces an invalid result."""
+
+
+class CompressorError(BeskarError):
+    """Raised when the compressor encounters an unrecoverable state."""
+
+
 def estimate_tokens(text: str) -> int:
     """Estimate token count using 4-chars-per-token heuristic."""
     return len(text) // 4

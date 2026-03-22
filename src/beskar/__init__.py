@@ -2,5 +2,6 @@
 from __future__ import annotations
 
 from .client import BeskarClient
+from .types import BeskarError, CompressorError, PrunerError
 
-__all__ = ["BeskarClient"]
+__all__ = ["BeskarClient", "BeskarError", "CompressorError", "PrunerError"]

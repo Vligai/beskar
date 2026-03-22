@@ -5,6 +5,30 @@ export type BeskarMessage = Anthropic.MessageParam;
 
 export type PrunerStrategy = 'sliding-window' | 'summarize' | 'importance';
 
+/** Base error for all Beskar-specific errors. */
+export class BeskarError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'BeskarError';
+  }
+}
+
+/** Raised when the pruner produces an invalid result. */
+export class PrunerError extends BeskarError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'PrunerError';
+  }
+}
+
+/** Raised when the compressor encounters an unrecoverable state. */
+export class CompressorError extends BeskarError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'CompressorError';
+  }
+}
+
 /** Estimate token count using 4-chars-per-token heuristic. */
 export function estimateTokens(text: string): number {
   return Math.floor(text.length / 4);

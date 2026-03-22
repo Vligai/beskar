@@ -1,4 +1,5 @@
 export { BeskarClient } from './client.js';
+export { BeskarError, PrunerError, CompressorError } from './types.js';
 
 export type {
   BeskarConfig,

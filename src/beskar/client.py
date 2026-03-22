@@ -1,7 +1,7 @@
 """Client module — BeskarClient wrapping the Anthropic SDK."""
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import anthropic
 
@@ -9,7 +9,7 @@ from .cache import structure_cache
 from .compressor import collapse_tool_chains, compress_tool_result
 from .metrics import MetricsTracker, create_metrics_tracker
 from .pruner import prune_messages
-from .types import BeskarConfig, MetricsSummary
+from .types import BeskarConfig, BeskarMessage, MetricsSummary
 
 
 class BeskarClient:
@@ -27,12 +27,18 @@ class BeskarClient:
             self._client = client
 
         def create(self, **params: Any) -> anthropic.types.Message:
+            """Create a message with the Beskar optimization pipeline.
+
+            Accepts the same keyword arguments as
+            ``anthropic.messages.create()`` (model, max_tokens, messages,
+            system, tools, etc.).
+            """
             client = self._client
             config = client._config
 
-            messages: Any = params.get("messages", [])
-            system: Any = params.get("system")
-            tools: Any = params.get("tools")
+            messages: List[BeskarMessage] = list(params.get("messages", []))
+            system: Optional[Union[str, List[Any]]] = params.get("system")
+            tools: Optional[List[Any]] = params.get("tools")
 
             # Step 1 — Pruner
             if config.pruner:
@@ -52,7 +58,7 @@ class BeskarClient:
 
             # Step 3 — Compressor (truncate + chain collapse)
             if config.compressor:
-                compressed: list[Any] = []
+                compressed: List[BeskarMessage] = []
                 for msg in messages:
                     if msg.get("role") == "user" and isinstance(msg.get("content"), list):
                         new_content = [

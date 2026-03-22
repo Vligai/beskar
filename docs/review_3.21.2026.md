@@ -12,7 +12,7 @@ Beskar is a dual-language (Python primary, TypeScript secondary) Claude-native t
 
 87 Python tests pass at 97% coverage, 96 TypeScript tests pass. The architecture is clean and modular. **All three critical bugs (Issues 1–3) have been fixed** in both languages. The `.gitignore` gap has also been fixed and tracked `.pyc` files removed.
 
-**Verdict:** Critical issues resolved. Remaining work is high-priority (Issues 4–6) and medium-priority cleanup.
+**Verdict:** All critical, high, medium, and low-priority issues resolved. Only deferred items remain (debug/verbose mode, V2 roadmap).
 
 ---
 
@@ -66,7 +66,7 @@ Output: anthropic.types.Message
 **Weaknesses:**
 - Pipeline order is hardcoded in `client.py` — not configurable
 - No middleware/plugin architecture for extending with custom steps
-- Python `client.py` uses `Any` type annotations heavily in the `_MessagesNamespace.create()` method — loses type safety at the pipeline boundary
+- ~~Python `client.py` uses `Any` type annotations heavily~~ **IMPROVED** — internal variables now typed; `**params: Any` kept as SDK pass-through
 
 ### Module Analysis (Python)
 
@@ -287,14 +287,12 @@ Excellent coverage and organization. Higher than the TS review because the orpha
 **File changed:** `.gitignore`
 **Fix applied:** Replaced `python/**/__pycache__/` and `python/**/*.egg-info/` with global `__pycache__/` and `*.egg-info/` patterns. Removed 11 tracked `.pyc` files from git index via `git rm -r --cached`.
 
-### Issue N2: `client.py` Uses `Any` Extensively — **LOW**
+### Issue N2: `client.py` Uses `Any` Extensively — ~~LOW~~ **IMPROVED**
 
 **File:** `src/beskar/client.py`
-**Problem:** The `create()` method accepts `**params: Any` and internal variables (`messages`, `system`, `tools`) are typed `Any`. Despite `mypy --strict` in `pyproject.toml`, type safety is lost at the pipeline entry point.
+**Problem:** The `create()` method accepts `**params: Any` and internal variables (`messages`, `system`, `tools`) were typed `Any`. Despite `mypy --strict` in `pyproject.toml`, type safety was lost at the pipeline entry point.
 
-**Impact:** IDE autocomplete and mypy checking don't work for callers of `client.messages.create()`.
-
-**Recommendation:** Type `create()` parameters to match `anthropic.types.MessageCreateParams` or use `TypedDict`.
+**Fix applied:** Internal variables now have proper types: `messages: List[BeskarMessage]`, `system: Optional[Union[str, List[Any]]]`, `tools: Optional[List[Any]]`, `compressed: List[BeskarMessage]`. Added docstring to `create()`. The `**params: Any` signature is kept as it's a SDK pass-through and changing it would alter the public API.
 
 ### Issue N3: `python/` Directory is Vestigial — **LOW**
 
@@ -313,9 +311,9 @@ Excellent coverage and organization. Higher than the TS review because the orpha
 | 8 | `collapse_tool_chains` skips multi-tool turns | Both languages | Low | **Documented** |
 | 9 | Duplicate `estimate_tokens` in cache + compressor | Both languages | Low | **Fixed** |
 | 10 | No debug/verbose mode | Both languages | Medium | Deferred |
-| 11 | No custom error types | Both languages | Low | Deferred |
+| 11 | No custom error types | Both languages | Low | **Fixed** |
 | N1 | `.gitignore` gaps for root-level Python | `.gitignore` | Medium | **Fixed** |
-| N2 | `client.py` heavy `Any` usage | `src/beskar/client.py` | Low | Deferred |
+| N2 | `client.py` heavy `Any` usage | `src/beskar/client.py` | Low | **Improved** |
 | N3 | Vestigial `python/` directory | `python/` | Low | N/A (untracked) |
 
 ---
@@ -366,13 +364,15 @@ Excellent coverage and organization. Higher than the TS review because the orpha
 5. ~~Document `summarize` as a stub with docstrings~~ **DOCUMENTED**
 6. ~~Add per-model pricing map~~ **FIXED**
 7. ~~Remove or document vestigial `python/` directory~~ N/A (untracked build artifacts only)
-8. Improve `client.py` type annotations (deferred — changes public API)
+8. ~~Improve `client.py` type annotations~~ **IMPROVED** — internal variables now typed (`List[BeskarMessage]`, `Optional[Union[str, List[Any]]]`, etc.); `**params: Any` kept as SDK pass-through
 
-### ~~Nice to Have~~ — Mostly Resolved
+### ~~Nice to Have~~ — Resolved
 9. ~~Fix orphaned TS test blocks~~ **FIXED**
 10. ~~Document multi-tool turn limitation~~ **DOCUMENTED**
 11. ~~Extract shared `estimate_tokens` utility~~ **FIXED**
 12. Add debug/verbose logging mode (deferred — feature work)
+13. ~~Add custom error types~~ **FIXED**
+14. ~~Improve `client.py` type annotations~~ **IMPROVED**
 
 ### V2 Roadmap Items
 13. Real LLM-based summarization (V2.1)
@@ -401,3 +401,4 @@ Previous review (`review.md`) was TypeScript-only and is now outdated. This revi
 | 2026-03-21 | Issues 1, 2, 3, N1 | Python 87/87 tests, TS 96/96 tests |
 | 2026-03-21 | Issues 4 (documented), 5 (per-model pricing) | Python 87/87 (97%), TS 96/96 |
 | 2026-03-21 | Issues 7, 8 (documented), 9 (shared utility) | Python 87/87 (97%), TS 96/96 |
+| 2026-03-21 | Issue 11 (custom errors), N2 (client.py typing) | Python 87/87 (97%), TS 96/96 |
