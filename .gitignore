@@ -8,11 +8,11 @@ coverage/
 .coverage
 
 # Python
-python/**/__pycache__/
-python/**/*.egg-info/
-python/.venv/
-python/dist/
-python/.coverage
-python/htmlcov/
+__pycache__/
+*.egg-info/
+.venv/
+.coverage
+htmlcov/
 .mypy_cache/
-venv/**
+venv/
+.pytest_cache/
